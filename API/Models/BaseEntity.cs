@@ -1,6 +1,6 @@
 ﻿namespace API.Models;
 
-public class BaseEntity
+public abstract class BaseEntity
 {
     public Guid Guid { get; set; }
     public DateTime CreatedDate { get; set; }

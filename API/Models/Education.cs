@@ -11,6 +11,9 @@ public class Education : BaseEntity
     [Column("degree", TypeName = "nvarchar(100)")]
     public string Degree { get; set; }
 
+    [Column("gpa")]
     public float Gpa { get; set; }
+
+    [Column("university_guid")]
     public Guid UniversityGuid { get; set; }
 }

@@ -14,8 +14,13 @@ public class Employee : BaseEntity
     [Column("last_name", TypeName = "nvarchar(100)")]
     public string? LastName { get; set; }
 
+    [Column("birth_date")]
     public DateTime BirthDate { get; set; }
+
+    [Column("gender")]
     public int Gender { get; set; }
+
+    [Column("hiring_date")]
     public DateTime HiringDate { get; set; }
 
     [Column("email", TypeName = "nvarchar(100)")]

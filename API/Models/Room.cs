@@ -8,6 +8,9 @@ public class Room : BaseEntity
     [Column("name", TypeName = "nvarchar(100)")]
     public string Name { get; set; }
 
+    [Column("floor")]
     public int Floor { get; set; }
+
+    [Column("capacity")]
     public int Capacity { get; set; }
 }
