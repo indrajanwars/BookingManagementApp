@@ -23,4 +23,9 @@ public class Booking : BaseEntity
 
     [Column("employee_guid")]
     public Guid EmployeeGuid { get; set; }
+
+
+    //Cardinality
+    public Employee? Employee { get; set; }
+    public Room? Room { get; set; }
 }

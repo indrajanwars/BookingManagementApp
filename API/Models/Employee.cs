@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using API.Utilities.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Models;
 
@@ -18,7 +19,7 @@ public class Employee : BaseEntity
     public DateTime BirthDate { get; set; }
 
     [Column("gender")]
-    public int Gender { get; set; }
+    public GenderLevel Gender { get; set; }
 
     [Column("hiring_date")]
     public DateTime HiringDate { get; set; }
@@ -28,4 +29,9 @@ public class Employee : BaseEntity
 
     [Column("phone_number", TypeName = "nvarchar(20)")]
     public string PhoneNumber { get; set; }
+
+    // Cardinality
+    public Education? Education { get; set; }
+    public Account? Account { get; set; }
+    public ICollection<Booking>? Booking { get; set; }
 }
