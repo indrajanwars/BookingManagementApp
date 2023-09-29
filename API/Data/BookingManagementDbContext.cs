@@ -10,20 +10,21 @@ public class BookingManagementDbContext : DbContext
     public BookingManagementDbContext(DbContextOptions<BookingManagementDbContext> options) : base(options) { }
 
     // Add Models to migrate
-    public DbSet<Account> Accounts { get; set; }
-    public DbSet<AccountRole> AccountRoles { get; set; }
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<Room> Rooms { get; set; }
-    public DbSet<Booking> Bookings { get; set; }
-    public DbSet<Education> Educations { get; set; }
-    public DbSet<Employee> Employees { get; set; }
-    public DbSet<University> Universities { get; set; }
+    public DbSet<Account> Account { get; set; }
+    public DbSet<AccountRole> AccountRole { get; set; }
+    public DbSet<Role> Role { get; set; }
+    public DbSet<Room> Room { get; set; }
+    public DbSet<Booking> Booking { get; set; }
+    public DbSet<Education> Education { get; set; }
+    public DbSet<Employee> Employee { get; set; }
+    public DbSet<University> University { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Employee>().HasIndex(e => new {
+        modelBuilder.Entity<Employee>().HasIndex(e => new
+        {
             e.Nik,
             e.Email,
             e.PhoneNumber
@@ -37,11 +38,10 @@ public class BookingManagementDbContext : DbContext
                     .OnDelete(DeleteBehavior.Restrict);
 
         // Or :
-
         /*modelBuilder.Entity<Education>()
-                    .HasOne(u => u.University)
-                    .WithMany(e => e.Educations)
-                    .HasForeignKey(u => u.UniversityGuid);*/
+            .HasOne(u => u.University)
+            .WithMany(e => e.Educations)
+            .HasForeignKey(u => u.UniversityGuid);*/
 
         // One Education has one Employees
         modelBuilder.Entity<Education>()
