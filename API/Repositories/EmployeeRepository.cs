@@ -4,32 +4,32 @@ using API.Models;
 
 namespace API.Repositories;
 
-public class EducationRepository : IEducationRepository
+public class EmployeeRepository : IEmployeeRepository
 {
     private readonly BookingManagementDbContext _context;
 
-    public EducationRepository(BookingManagementDbContext context)
+    public EmployeeRepository(BookingManagementDbContext context)
     {
         _context = context;
     }
 
-    public IEnumerable<Education> GetAll()
+    public IEnumerable<Employee> GetAll()
     {
-        return _context.Set<Education>().ToList();
+        return _context.Set<Employee>().ToList();
     }
 
-    public Education? GetByGuid(Guid guid)
+    public Employee? GetByGuid(Guid guid)
     {
-        return _context.Set<Education>().Find(guid);
+        return _context.Set<Employee>().Find(guid);
     }
 
-    public Education? Create(Education education)
+    public Employee? Create(Employee employee)
     {
         try
         {
-            _context.Set<Education>().Add(education);
+            _context.Set<Employee>().Add(employee);
             _context.SaveChanges();
-            return education;
+            return employee;
         }
         catch
         {
@@ -37,11 +37,11 @@ public class EducationRepository : IEducationRepository
         }
     }
 
-    public bool Update(Education education)
+    public bool Update(Employee employee)
     {
         try
         {
-            _context.Set<Education>().Update(education);
+            _context.Set<Employee>().Update(employee);
             _context.SaveChanges();
             return true;
         }
@@ -51,11 +51,11 @@ public class EducationRepository : IEducationRepository
         }
     }
 
-    public bool Delete(Education education)
+    public bool Delete(Employee employee)
     {
         try
         {
-            _context.Set<Education>().Remove(education);
+            _context.Set<Employee>().Remove(employee);
             _context.SaveChanges();
             return true;
         }

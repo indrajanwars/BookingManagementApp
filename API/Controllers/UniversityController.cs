@@ -59,7 +59,6 @@ public class UniversityController : ControllerBase
             return NotFound("University not found");
         }
 
-        // Update existingUniversity properties with values from the provided 'university' object
         existingUniversity.Code = university.Code;
         existingUniversity.Name = university.Name;
 
@@ -87,5 +86,4 @@ public class UniversityController : ControllerBase
 
         return BadRequest("Failed to delete University");
     }
-
 }

@@ -4,32 +4,32 @@ using API.Models;
 
 namespace API.Repositories;
 
-public class EducationRepository : IEducationRepository
+public class RoomRepository : IRoomRepository
 {
     private readonly BookingManagementDbContext _context;
 
-    public EducationRepository(BookingManagementDbContext context)
+    public RoomRepository(BookingManagementDbContext context)
     {
         _context = context;
     }
 
-    public IEnumerable<Education> GetAll()
+    public IEnumerable<Room> GetAll()
     {
-        return _context.Set<Education>().ToList();
+        return _context.Set<Room>().ToList();
     }
 
-    public Education? GetByGuid(Guid guid)
+    public Room? GetByGuid(Guid guid)
     {
-        return _context.Set<Education>().Find(guid);
+        return _context.Set<Room>().Find(guid);
     }
 
-    public Education? Create(Education education)
+    public Room? Create(Room room)
     {
         try
         {
-            _context.Set<Education>().Add(education);
+            _context.Set<Room>().Add(room);
             _context.SaveChanges();
-            return education;
+            return room;
         }
         catch
         {
@@ -37,11 +37,11 @@ public class EducationRepository : IEducationRepository
         }
     }
 
-    public bool Update(Education education)
+    public bool Update(Room room)
     {
         try
         {
-            _context.Set<Education>().Update(education);
+            _context.Set<Room>().Update(room);
             _context.SaveChanges();
             return true;
         }
@@ -51,11 +51,11 @@ public class EducationRepository : IEducationRepository
         }
     }
 
-    public bool Delete(Education education)
+    public bool Delete(Room room)
     {
         try
         {
-            _context.Set<Education>().Remove(education);
+            _context.Set<Room>().Remove(room);
             _context.SaveChanges();
             return true;
         }
