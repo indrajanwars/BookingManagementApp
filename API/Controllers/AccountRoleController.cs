@@ -59,7 +59,6 @@ public class AccountRoleController : ControllerBase
             return NotFound("AccountRole not found");
         }
 
-        // Update existingAccountRole properties with values from the provided 'accountRole' object
         existingAccountRole.AccountGuid = accountRole.AccountGuid;
         existingAccountRole.RoleGuid = accountRole.RoleGuid;
 

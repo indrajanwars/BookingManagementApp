@@ -50,42 +50,33 @@ public class EducationController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, Education education)
+    [HttpPut]
+    public IActionResult Update(Education education)
     {
-        var existingEducation = _educationRepository.GetByGuid(guid);
-        if (existingEducation == null)
+        var result = _educationRepository.Update(education);
+        if (!result)
         {
-            return NotFound("Education not found");
+            return BadRequest("Failed to update data");
         }
 
-        existingEducation.Major = education.Major;
-        existingEducation.Degree = education.Degree;
-        existingEducation.Gpa = education.Gpa;
-        existingEducation.UniversityGuid = education.UniversityGuid;
-
-        if (_educationRepository.Update(existingEducation))
-        {
-            return Ok(existingEducation);
-        }
-
-        return BadRequest("Failed to update Education");
+        return Ok("Data Updated");
     }
 
     [HttpDelete("{guid}")]
     public IActionResult Delete(Guid guid)
     {
-        var existingEducation = _educationRepository.GetByGuid(guid);
-        if (existingEducation == null)
+        var entity = _educationRepository.GetByGuid(guid);
+        if (entity is null)
         {
-            return NotFound("Education not found");
+            return NotFound("Id Not Found");
         }
 
-        if (_educationRepository.Delete(existingEducation))
+        var result = _educationRepository.Delete(entity);
+        if (!result)
         {
-            return Ok("Education deleted successfully");
+            return BadRequest("Failed to delete data");
         }
 
-        return BadRequest("Failed to delete Education");
+        return Ok("Data Deleted");
     }
 }
