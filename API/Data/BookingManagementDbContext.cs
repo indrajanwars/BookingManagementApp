@@ -53,34 +53,31 @@ public class BookingManagementDbContext : DbContext
         modelBuilder.Entity<Employee>()
                     .HasMany(e => e.Booking)
                     .WithOne(u => u.Employee)
-                    .HasForeignKey(e => e.EmployeeGuid)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .HasForeignKey(e => e.EmployeeGuid);
 
         // One Room has many Booking
         modelBuilder.Entity<Room>()
                     .HasMany(e => e.Booking)
                     .WithOne(u => u.Room)
-                    .HasForeignKey(e => e.RoomGuid)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .HasForeignKey(e => e.RoomGuid);
 
         // One Employee has one Account
         modelBuilder.Entity<Employee>()
                     .HasOne(e => e.Account)
                     .WithOne(a => a.Employee)
-                    .HasForeignKey<Account>(a => a.Guid);
+                    .HasForeignKey<Account>(a => a.Guid)
+                    .OnDelete(DeleteBehavior.Cascade);
 
         // One Account has many Account Role
         modelBuilder.Entity<Account>()
                     .HasMany(a => a.AccountRole)
                     .WithOne(ar => ar.Account)
-                    .HasForeignKey(ar => ar.AccountGuid)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .HasForeignKey(ar => ar.AccountGuid);
 
         // One Role has many Account Role
         modelBuilder.Entity<Role>()
                     .HasMany(r => r.AccountRole)
                     .WithOne(ar => ar.Role)
-                    .HasForeignKey(ar => ar.RoleGuid)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .HasForeignKey(ar => ar.RoleGuid);
     }
 }
