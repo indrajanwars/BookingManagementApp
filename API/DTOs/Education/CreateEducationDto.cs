@@ -1,25 +1,26 @@
 ﻿using API.Models;
 
-namespace API.DTOs.Educations
-{
-    public class CreateEducationDto
-    {
-        public string Major { get; set; }
-        public string Degree { get; set; }
-        public float Gpa { get; set; }
-        public Guid UniversityGuid { get; set; }
+/* Kelas ini digunakan untuk Data Transfer Object (DTO) yang mengambil data
+ * dari request API, dan membuat objek Education berdasarkan data tersebut. */
+namespace API.DTOs.Educations;
 
-        public static implicit operator Education(CreateEducationDto createEducationDto)
+public class CreateEducationDto
+{
+    public string Major { get; set; }
+    public string Degree { get; set; }
+    public float Gpa { get; set; }
+    public Guid UniversityGuid { get; set; }
+
+    public static implicit operator Education(CreateEducationDto createEducationDto)
+    {
+        return new Education
         {
-            return new Education
-            {
-                Major = createEducationDto.Major,
-                Degree = createEducationDto.Degree,
-                Gpa = createEducationDto.Gpa,
-                UniversityGuid = createEducationDto.UniversityGuid,
-                CreatedDate = DateTime.Now,
-                ModifiedDate = DateTime.Now
-            };
-        }
+            Major = createEducationDto.Major,
+            Degree = createEducationDto.Degree,
+            Gpa = createEducationDto.Gpa,
+            UniversityGuid = createEducationDto.UniversityGuid,
+            CreatedDate = DateTime.Now,
+            ModifiedDate = DateTime.Now
+        };
     }
 }

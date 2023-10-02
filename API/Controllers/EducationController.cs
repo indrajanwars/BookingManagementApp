@@ -2,81 +2,99 @@
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class EducationController : ControllerBase
+namespace API.Controllers
 {
-    private readonly IEducationRepository _educationRepository;
-
-    public EducationController(IEducationRepository educationRepository)
+    // Mendeklarasikan kelas EducationController adalah turunan dari ControllerBase.
+    [ApiController]
+    [Route("api/[controller]")]
+    public class EducationController : ControllerBase
     {
-        _educationRepository = educationRepository;
-    }
+        private readonly IEducationRepository _educationRepository;
 
-    [HttpGet]
-    public IActionResult GetAll()
-    {
-        var result = _educationRepository.GetAll();
-        if (!result.Any())
+        // Konstruktor kelas EducationController menerima instance IEducationRepository sebagai dependensi.
+        public EducationController(IEducationRepository educationRepository)
         {
-            return NotFound("Data Not Found");
+            _educationRepository = educationRepository;
         }
 
-        return Ok(result);
-    }
-
-    [HttpGet("{guid}")]
-    public IActionResult GetByGuid(Guid guid)
-    {
-        var result = _educationRepository.GetByGuid(guid);
-        if (result is null)
+        // HTTP GET: Mengambil semua data Education dari repository.
+        [HttpGet]
+        public IActionResult GetAll()
         {
-            return NotFound("Id Not Found");
-        }
-        return Ok(result);
-    }
+            var result = _educationRepository.GetAll();
+            if (!result.Any())
+            {
+                // Mengembalikan respons NotFound jika tidak ada data yang ditemukan.
+                return NotFound("Data Not Found");
+            }
 
-    [HttpPost]
-    public IActionResult Create(Education education)
-    {
-        var result = _educationRepository.Create(education);
-        if (result is null)
-        {
-            return BadRequest("Failed to create data");
+            // Mengembalikan data dalam respons OK jika berhasil.
+            return Ok(result);
         }
 
-        return Ok(result);
-    }
-
-    [HttpPut]
-    public IActionResult Update(Education education)
-    {
-        var result = _educationRepository.Update(education);
-        if (!result)
+        // HTTP GET: Mengambil data Education berdasarkan GUID yang diberikan.
+        [HttpGet("{guid}")]
+        public IActionResult GetByGuid(Guid guid)
         {
-            return BadRequest("Failed to update data");
+            var result = _educationRepository.GetByGuid(guid);
+            if (result is null)
+            {
+                // Mengembalikan respons NotFound jika GUID tidak ditemukan.
+                return NotFound("Id Not Found");
+            }
+            return Ok(result);
         }
 
-        return Ok("Data Updated");
-    }
-
-    [HttpDelete("{guid}")]
-    public IActionResult Delete(Guid guid)
-    {
-        var entity = _educationRepository.GetByGuid(guid);
-        if (entity is null)
+        // HTTP POST: Membuat data Education baru dengan menggunakan objek Education yang diterima.
+        [HttpPost]
+        public IActionResult Create(Education education)
         {
-            return NotFound("Id Not Found");
+            var result = _educationRepository.Create(education);
+            if (result is null)
+            {
+                // Mengembalikan respons BadRequest jika gagal membuat data baru.
+                return BadRequest("Failed to create data");
+            }
+
+            // Mengembalikan data yang berhasil dibuat dalam respons OK.
+            return Ok(result);
         }
 
-        var result = _educationRepository.Delete(entity);
-        if (!result)
+        // HTTP PUT: Memperbarui data Education berdasarkan objek Education yang diterima.
+        [HttpPut]
+        public IActionResult Update(Education education)
         {
-            return BadRequest("Failed to delete data");
+            var result = _educationRepository.Update(education);
+            if (!result)
+            {
+                // Mengembalikan respons BadRequest jika gagal memperbarui data.
+                return BadRequest("Failed to update data");
+            }
+
+            // Mengembalikan respons OK dengan pesan "Data Updated" jika berhasil.
+            return Ok("Data Updated");
         }
 
-        return Ok("Data Deleted");
+        // HTTP DELETE: Menghapus data Education berdasarkan GUID yang diberikan.
+        [HttpDelete("{guid}")]
+        public IActionResult Delete(Guid guid)
+        {
+            var entity = _educationRepository.GetByGuid(guid);
+            if (entity is null)
+            {
+                // Mengembalikan respons NotFound jika GUID tidak ditemukan.
+                return NotFound("Id Not Found");
+            }
+
+            var result = _educationRepository.Delete(entity);
+            if (!result)
+            {
+                // Mengembalikan respons BadRequest jika gagal menghapus data.
+                return BadRequest("Failed to delete data");
+            }
+
+            // Mengembalikan respons OK dengan pesan "Data Deleted" jika berhasil.
+            return Ok("Data Deleted");
+        }
     }
 }

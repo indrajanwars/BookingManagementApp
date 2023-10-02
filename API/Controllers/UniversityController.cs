@@ -1,100 +1,132 @@
 ﻿using API.Contracts;
-using API.DTOs.Universites;
+using API.DTOs.Universities;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class UniversityController : ControllerBase
+namespace API.Controllers
 {
-    private readonly IUniversityRepository _universityRepository;
-
-    public UniversityController(IUniversityRepository universityRepository)
+    // UniversityController adalah sebuah kontroler API yang berfungsi untuk mengelola data universitas.
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UniversityController : ControllerBase
     {
-        _universityRepository = universityRepository;
-    }
+        private readonly IUniversityRepository _universityRepository;
 
-    [HttpGet]
-    public IActionResult GetAll()
-    {
-        var result = _universityRepository.GetAll();
-        if (!result.Any())
+        // Konstruktor untuk UniversityController, menerima instance dari IUniversityRepository yang akan digunakan untuk mengakses data universitas.
+        public UniversityController(IUniversityRepository universityRepository)
         {
-            return NotFound("Data Not Found");
+            _universityRepository = universityRepository;
         }
 
-        var data = result.Select(x => (UniversityDto)x);
-
-        /*var universityDto = new List<UniversityDto>();
-        foreach (var university in result)
+        [HttpGet]
+        public IActionResult GetAll()
         {
-            universityDto.Add((UniversityDto) university);
-        }*/
+            // Mengambil semua data universitas dari repositori.
+            var result = _universityRepository.GetAll();
 
-        return Ok(data);
-    }
+            // Jika tidak ada data universitas yang ditemukan, mengembalikan respons NotFound.
+            if (!result.Any())
+            {
+                return NotFound("Data Not Found");
+            }
 
-    [HttpGet("{guid}")]
-    public IActionResult GetByGuid(Guid guid)
-    {
-        var result = _universityRepository.GetByGuid(guid);
-        if (result is null)
-        {
-            return NotFound("Id Not Found");
-        }
-        return Ok((UniversityDto)result);
-    }
+            // Mengkonversi hasil ke dalam bentuk UniversityDto dan mengembalikannya sebagai respons API.
+            var data = result.Select(x => (UniversityDto)x);
 
-    [HttpPost]
-    public IActionResult Create(CreateUniversityDto universityDto)
-    {
-        var result = _universityRepository.Create(universityDto);
-        if (result is null)
-        {
-            return BadRequest("Failed to create data");
+            /* Alternatif cara konversi menggunakan loop:
+            var universityDto = new List<UniversityDto>();
+            foreach (var university in result)
+            {
+                universityDto.Add((UniversityDto) university);
+            }*/
+
+            return Ok(data);
         }
 
-        return Ok((UniversityDto)result);
-    }
-
-    [HttpPut]
-    public IActionResult Update(UniversityDto universityDto)
-    {
-        var entity = _universityRepository.GetByGuid(universityDto.Guid);
-        if (entity is null)
+        [HttpGet("{guid}")]
+        public IActionResult GetByGuid(Guid guid)
         {
-            return NotFound("Id Not Found");
+            // Mengambil data universitas berdasarkan GUID yang diberikan.
+            var result = _universityRepository.GetByGuid(guid);
+
+            // Jika data universitas tidak ditemukan, mengembalikan respons NotFound.
+            if (result is null)
+            {
+                return NotFound("Id Not Found");
+            }
+
+            // Mengkonversi hasil ke dalam bentuk UniversityDto dan mengembalikannya sebagai respons API.
+            return Ok((UniversityDto)result);
         }
 
-        University toUpdate = universityDto;
-        toUpdate.CreatedDate = entity.CreatedDate;
-
-        var result = _universityRepository.Update(toUpdate);
-        if (!result)
+        [HttpPost]
+        public IActionResult Create(CreateUniversityDto universityDto)
         {
-            return BadRequest("Failed to update data");
+            // Membuat data universitas baru berdasarkan data yang diterima dalam permintaan API.
+            var result = _universityRepository.Create(universityDto);
+
+            // Jika gagal membuat data universitas, mengembalikan respons BadRequest.
+            if (result is null)
+            {
+                return BadRequest("Failed to create data");
+            }
+
+            // Mengkonversi hasil ke dalam bentuk UniversityDto dan mengembalikannya sebagai respons API.
+            return Ok((UniversityDto)result);
         }
 
-        return Ok("Data Updated");
-    }
-
-    [HttpDelete("{guid}")]
-    public IActionResult Delete(Guid guid)
-    {
-        var entity = _universityRepository.GetByGuid(guid);
-        if (entity is null)
+        [HttpPut]
+        public IActionResult Update(UniversityDto universityDto)
         {
-            return NotFound("Id Not Found");
+            // Mengambil data universitas berdasarkan GUID yang diberikan.
+            var entity = _universityRepository.GetByGuid(universityDto.Guid);
+
+            // Jika data universitas tidak ditemukan, mengembalikan respons NotFound.
+            if (entity is null)
+            {
+                return NotFound("Id Not Found");
+            }
+
+            // Menyalin data dari UniversityDto ke objek University yang akan diperbarui dengan tetap mempertahankan CreatedDate dari entitas yang ada.
+            University toUpdate = universityDto;
+            toUpdate.CreatedDate = entity.CreatedDate;
+
+            // Memperbarui data universitas.
+            var result = _universityRepository.Update(toUpdate);
+
+            // Jika gagal memperbarui data universitas, mengembalikan respons BadRequest.
+            if (!result)
+            {
+                return BadRequest("Failed to update data");
+            }
+
+            // Mengembalikan respons sukses.
+            return Ok("Data Updated");
         }
 
-        var result = _universityRepository.Delete(entity);
-        if (!result)
+        [HttpDelete("{guid}")]
+        public IActionResult Delete(Guid guid)
         {
-            return BadRequest("Failed to delete data");
-        }
+            // Mengambil data universitas berdasarkan GUID yang diberikan.
+            var entity = _universityRepository.GetByGuid(guid);
 
-        return Ok("Data Deleted");
+            // Jika data universitas tidak ditemukan, mengembalikan respons NotFound.
+            if (entity is null)
+            {
+                return NotFound("Id Not Found");
+            }
+
+            // Menghapus data universitas.
+            var result = _universityRepository.Delete(entity);
+
+            // Jika gagal menghapus data universitas, mengembalikan respons BadRequest.
+            if (!result)
+            {
+                return BadRequest("Failed to delete data");
+            }
+
+            // Mengembalikan respons sukses.
+            return Ok("Data Deleted");
+        }
     }
 }

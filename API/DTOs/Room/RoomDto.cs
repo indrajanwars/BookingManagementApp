@@ -2,6 +2,8 @@
 
 namespace API.DTOs.Rooms;
 
+/* Kelas RoomDto adalah Data Transfer Object (DTO) yang digunakan untuk 
+ * mengambil data dari objek Room dan mengembalikannya sebagai respons dari API. */
 public class RoomDto
 {
     public Guid Guid { get; set; }

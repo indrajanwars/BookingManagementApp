@@ -2,6 +2,8 @@
 
 namespace API.DTOs.Rooms;
 
+/* Kelas ini digunakan untuk Data Transfer Object (DTO) yang mengambil data
+ * dari request API, dan membuat objek Room berdasarkan data tersebut. */
 public class CreateRoomDto
 {
     public string Name { get; set; }

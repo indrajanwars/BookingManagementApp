@@ -2,6 +2,8 @@
 
 namespace API.DTOs.Roles;
 
+/* Kelas ini digunakan untuk Data Transfer Object (DTO) yang mengambil data
+ * dari request API, dan membuat objek Role berdasarkan data tersebut. */
 public class CreateRoleDto
 {
     public string Name { get; set; }

@@ -2,6 +2,8 @@
 
 namespace API.DTOs.Roles;
 
+/* Kelas RoleDto adalah Data Transfer Object (DTO) yang digunakan untuk 
+ * mengambil data dari objek Role dan mengembalikannya sebagai respons dari API. */
 public class RoleDto
 {
     public Guid Guid { get; set; }
