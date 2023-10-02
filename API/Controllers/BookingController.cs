@@ -1,4 +1,5 @@
 ﻿using API.Contracts;
+using API.DTOs.Bookings;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,4 +1,5 @@
 ﻿using API.Contracts;
+using API.DTOs.Employees;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,9 +40,9 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create(Employees employee)
+    public IActionResult Create(CreateEmployeeDto employeeDto)
     {
-        var result = _employeeRepository.Create(employee);
+        var result = _employeeRepository.Create(employeeDto);
         if (result is null)
         {
             return BadRequest("Failed to create data");

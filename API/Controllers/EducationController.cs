@@ -1,4 +1,5 @@
 ﻿using API.Contracts;
+using API.DTOs.Educations;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 

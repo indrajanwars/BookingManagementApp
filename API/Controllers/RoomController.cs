@@ -1,4 +1,5 @@
 ﻿using API.Contracts;
+using API.DTOs.Rooms;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
