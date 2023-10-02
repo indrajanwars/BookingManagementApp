@@ -18,6 +18,6 @@ public class Account : BaseEntity
     public DateTime ExpiredTime { get; set; }
 
     //Cardinality
-    public Employee? Employee { get; set; }
+    public Employees? Employee { get; set; }
     public ICollection<AccountRole>? AccountRole { get; set; }
 }

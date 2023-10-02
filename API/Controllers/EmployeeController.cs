@@ -39,7 +39,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create(Employee employee)
+    public IActionResult Create(Employees employee)
     {
         var result = _employeeRepository.Create(employee);
         if (result is null)
@@ -51,7 +51,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, Employee employee)
+    public IActionResult Update(Guid guid, Employees employee)
     {
         var existingEmployee = _employeeRepository.GetByGuid(guid);
         if (existingEmployee == null)

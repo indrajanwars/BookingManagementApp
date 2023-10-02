@@ -19,5 +19,5 @@ public class Education : BaseEntity
 
     //Cardinality
     public University? University { get; set; }
-    public Employee? Employee { get; set; }
+    public Employees? Employee { get; set; }
 }

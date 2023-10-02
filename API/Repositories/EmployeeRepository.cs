@@ -4,7 +4,7 @@ using API.Models;
 
 namespace API.Repositories;
 
-public class EmployeeRepository : GeneralRepository<Employee>, IEmployeeRepository
+public class EmployeeRepository : GeneralRepository<Employees>, IEmployeeRepository
 {
     public EmployeeRepository(BookingManagementDbContext context) : base(context) { }
 }
