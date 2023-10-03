@@ -1,7 +1,5 @@
 ﻿using API.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace API.Data;
 
@@ -16,14 +14,14 @@ public class BookingManagementDbContext : DbContext
     public DbSet<Room> Room { get; set; }
     public DbSet<Booking> Booking { get; set; }
     public DbSet<Education> Education { get; set; }
-    public DbSet<Employees> Employee { get; set; }
+    public DbSet<Employee> Employee { get; set; }
     public DbSet<University> University { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Employees>().HasIndex(e => new
+        modelBuilder.Entity<Employee>().HasIndex(e => new
         {
             e.Nik,
             e.Email,
@@ -50,7 +48,7 @@ public class BookingManagementDbContext : DbContext
                     .HasForeignKey<Education>(e => e.Guid);
 
         // One Employee has many Booking
-        modelBuilder.Entity<Employees>()
+        modelBuilder.Entity<Employee>()
                     .HasMany(e => e.Booking)
                     .WithOne(u => u.Employee)
                     .HasForeignKey(e => e.EmployeeGuid);
@@ -62,7 +60,7 @@ public class BookingManagementDbContext : DbContext
                     .HasForeignKey(e => e.RoomGuid);
 
         // One Employee has one Account
-        modelBuilder.Entity<Employees>()
+        modelBuilder.Entity<Employee>()
                     .HasOne(e => e.Account)
                     .WithOne(a => a.Employee)
                     .HasForeignKey<Account>(a => a.Guid)

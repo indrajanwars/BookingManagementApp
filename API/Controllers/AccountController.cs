@@ -1,92 +1,125 @@
 ﻿using API.Contracts;
-using API.DTOs.;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
+using API.DTOs.Bookings;
 
-namespace API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class AccountController : ControllerBase
+namespace API.Controllers
 {
-    private readonly IAccountRepository _accountRepository;
-
-    public AccountController(IAccountRepository accountRepository)
+    // AccountController adalah sebuah kontroler API yang berfungsi untuk mengelola data akun (account).
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AccountController : ControllerBase
     {
-        _accountRepository = accountRepository;
-    }
+        private readonly IAccountRepository _accountRepository;
 
-    [HttpGet]
-    public IActionResult GetAll()
-    {
-        var result = _accountRepository.GetAll();
-        if (!result.Any())
+        // Konstruktor untuk AccountController, menerima instance dari IAccountRepository yang akan digunakan untuk mengakses data akun.
+        public AccountController(IAccountRepository accountRepository)
         {
-            return NotFound("Data Not Found");
+            _accountRepository = accountRepository;
         }
 
-        return Ok(result);
-    }
-
-    [HttpGet("{guid}")]
-    public IActionResult GetByGuid(Guid guid)
-    {
-        var result = _accountRepository.GetByGuid(guid);
-        if (result is null)
+        [HttpGet]
+        public IActionResult GetAll()
         {
-            return NotFound("Id Not Found");
-        }
-        return Ok(result);
-    }
+            // Mengambil semua data akun dari repositori.
+            var result = _accountRepository.GetAll();
 
-    [HttpPost]
-    public IActionResult Create(Account account)
-    {
-        var result = _accountRepository.Create(account);
-        if (result is null)
-        {
-            return BadRequest("Failed to create data");
+            // Jika tidak ada data akun yang ditemukan, mengembalikan respons NotFound.
+            if (!result.Any())
+            {
+                return NotFound("Data Not Found");
+            }
+
+            // Mengkonversi hasil ke dalam bentuk AccountDto dan mengembalikannya sebagai respons API.
+            var data = result.Select(x => (AccountDto)x);
+
+            return Ok(data);
         }
 
-        return Ok(result);
-    }
-
-    [HttpPut("{guid}")]
-    public IActionResult Update(Guid guid, Account account)
-    {
-        var existingAccount = _accountRepository.GetByGuid(guid);
-        if (existingAccount == null)
+        [HttpGet("{guid}")]
+        public IActionResult GetByGuid(Guid guid)
         {
-            return NotFound("Account not found");
+            // Mengambil data akun berdasarkan GUID yang diberikan.
+            var result = _accountRepository.GetByGuid(guid);
+
+            // Jika data akun tidak ditemukan, mengembalikan respons NotFound.
+            if (result is null)
+            {
+                return NotFound("Id Not Found");
+            }
+
+            // Mengkonversi hasil ke dalam bentuk AccountDto dan mengembalikannya sebagai respons API.
+            return Ok((AccountDto)result);
         }
 
-        existingAccount.Password = account.Password;
-        existingAccount.OTP = account.OTP;
-        existingAccount.IsUsed = account.IsUsed;
-        existingAccount.ExpiredTime = account.ExpiredTime;
-
-        if (_accountRepository.Update(existingAccount))
+        [HttpPost]
+        public IActionResult Create(CreateAccountDto accountDto)
         {
-            return Ok(existingAccount);
+            // Membuat data akun baru berdasarkan data yang diterima dalam permintaan API.
+            var result = _accountRepository.Create(accountDto);
+
+            // Jika gagal membuat data akun, mengembalikan respons BadRequest.
+            if (result is null)
+            {
+                return BadRequest("Failed to create data");
+            }
+
+            // Mengkonversi hasil ke dalam bentuk AccountDto dan mengembalikannya sebagai respons API.
+            return Ok((AccountDto)result);
         }
 
-        return BadRequest("Failed to update Account");
-    }
-
-    [HttpDelete("{guid}")]
-    public IActionResult Delete(Guid guid)
-    {
-        var existingAccount = _accountRepository.GetByGuid(guid);
-        if (existingAccount == null)
+        [HttpPut]
+        public IActionResult Update(AccountDto accountDto)
         {
-            return NotFound("Account not found");
+            // Mengambil data akun berdasarkan GUID yang diberikan.
+            var entity = _accountRepository.GetByGuid(accountDto.Guid);
+
+            // Jika data akun tidak ditemukan, mengembalikan respons NotFound.
+            if (entity is null)
+            {
+                return NotFound("Id Not Found");
+            }
+
+            // Menyalin data dari AccountDto ke objek Account yang akan diperbarui, dengan tetap mempertahankan CreatedDate dari entitas yang ada.
+            Account toUpdate = accountDto;
+            toUpdate.CreatedDate = entity.CreatedDate;
+
+            // Memperbarui data akun.
+            var result = _accountRepository.Update(toUpdate);
+
+            // Jika gagal memperbarui data akun, mengembalikan respons BadRequest.
+            if (!result)
+            {
+                return BadRequest("Failed to update data");
+            }
+
+            // Mengembalikan respons sukses.
+            return Ok("Data Updated");
         }
 
-        if (_accountRepository.Delete(existingAccount))
+        [HttpDelete("{guid}")]
+        public IActionResult Delete(Guid guid)
         {
-            return Ok("Account deleted successfully");
-        }
+            // Mengambil data akun berdasarkan GUID yang diberikan.
+            var entity = _accountRepository.GetByGuid(guid);
 
-        return BadRequest("Failed to delete Account");
+            // Jika data akun tidak ditemukan, mengembalikan respons NotFound.
+            if (entity is null)
+            {
+                return NotFound("Id Not Found");
+            }
+
+            // Menghapus data akun.
+            var result = _accountRepository.Delete(entity);
+
+            // Jika gagal menghapus data akun, mengembalikan respons BadRequest.
+            if (!result)
+            {
+                return BadRequest("Failed to delete data");
+            }
+
+            // Mengembalikan respons sukses.
+            return Ok("Data Deleted");
+        }
     }
 }
