@@ -2,7 +2,7 @@
 
 /* Kelas AccountDto adalah Data Transfer Object (DTO) yang digunakan untuk 
  * mengambil data dari objek Account dan mengembalikannya sebagai respons dari API. */
-namespace API.DTOs.Bookings;
+namespace API.DTOs.Accounts;
 
 public class AccountDto
 {
