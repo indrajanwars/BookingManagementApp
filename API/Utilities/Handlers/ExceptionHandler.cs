@@ -1,6 +1,6 @@
-﻿namespace API.Utilities.Handlers
+﻿namespace API.Utilities.Handlers;
+
+public class ExceptionHandler : Exception
 {
-    public class ExceptionHandler
-    {
-    }
+    public ExceptionHandler(string message) : base(message) { }
 }
