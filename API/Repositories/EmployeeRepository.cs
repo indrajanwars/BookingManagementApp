@@ -9,15 +9,9 @@ namespace API.Repositories;
 public class EmployeeRepository : GeneralRepository<Employee>, IEmployeeRepository
 {
     public EmployeeRepository(BookingManagementDbContext context) : base(context) { }
-    public string GetLastNik()
-    {
-        Employee? employee = _context.Employee.OrderByDescending(e => e.Nik).FirstOrDefault();
 
-        return employee?.Nik ?? "";
-    }
-
-    public object Create(CreateEmployeeDto employeeDto)
+    public string? GetLastNik()
     {
-        throw new NotImplementedException();
+        return _context.Set<Employee>().OrderBy(e => e.Nik).LastOrDefault()?.Nik;
     }
 }

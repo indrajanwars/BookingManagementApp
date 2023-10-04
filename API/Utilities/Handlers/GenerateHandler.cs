@@ -1,15 +1,16 @@
 ﻿namespace API.Utilities.Handlers;
 
-public static class GenerateHandler
+public class GenerateHandler
 {
-    public static string Nik(string lastNik)
+    public static string Nik(string? lastNik = null)
     {
-        if (string.IsNullOrEmpty(lastNik))
+        if (lastNik is null)
         {
-            return "111111";
+            return "111111"; // First employee
         }
 
-        long nextNik = long.Parse(lastNik) + 1;
-        return nextNik.ToString();
+        var generateNik = Convert.ToInt32(lastNik) + 1;
+
+        return generateNik.ToString();
     }
 }
