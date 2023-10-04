@@ -1,7 +1,8 @@
-﻿using API.Contracts;
-using API.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using API.Contracts;
 using API.DTOs.Accounts;
+using API.Models;
 using API.Utilities.Handlers;
 
 namespace API.Controllers;
@@ -28,13 +29,19 @@ public class AccountController : ControllerBase
         // Jika tidak ada data akun yang ditemukan, mengembalikan respons NotFound.
         if (!result.Any())
         {
-            return NotFound("Data Not Found");
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
         }
 
         // Mengkonversi hasil ke dalam bentuk AccountDto dan mengembalikannya sebagai respons API.
         var data = result.Select(x => (AccountDto)x);
 
-        return Ok(data);
+        // Mengembalikan respons sukses dengan objek ResponseOKHandler yang berisi data.
+        return Ok(new ResponseOKHandler<IEnumerable<AccountDto>>(data));
     }
 
     [HttpGet("{guid}")]
@@ -46,93 +53,147 @@ public class AccountController : ControllerBase
         // Jika data akun tidak ditemukan, mengembalikan respons NotFound.
         if (result is null)
         {
-            return NotFound("Id Not Found");
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
         }
 
         // Mengkonversi hasil ke dalam bentuk AccountDto dan mengembalikannya sebagai respons API.
-        return Ok((AccountDto)result);
+        return Ok(new ResponseOKHandler<AccountDto>((AccountDto)result));
     }
 
     [HttpPost]
     public IActionResult Create(CreateAccountDto accountDto)
     {
-        // Membuat data akun baru berdasarkan data yang diterima dalam permintaan API.
-        var hashedPassword = HashingHandler.HashPassword(accountDto.Password);
-        accountDto.Password = hashedPassword;
-
-        var result = _accountRepository.Create(accountDto);
-
-        // Jika gagal membuat data akun, mengembalikan respons BadRequest.
-        if (result is null)
+        try
         {
-            return BadRequest("Failed to create data");
-        }
+            // Membuat data akun baru berdasarkan data yang diterima dalam permintaan API.
+            var hashedPassword = HashingHandler.HashPassword(accountDto.Password);
+            accountDto.Password = hashedPassword;
 
-        // Mengkonversi hasil ke dalam bentuk AccountDto dan mengembalikannya sebagai respons API.
-        return Ok((AccountDto)result);
+            var result = _accountRepository.Create(accountDto);
+
+            // Jika gagal membuat data akun, mengembalikan respons BadRequest.
+            if (result is null)
+            {
+                return BadRequest(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Status = HttpStatusCode.BadRequest.ToString(),
+                    Message = "Failed to create data"
+                });
+            }
+
+            // Mengkonversi hasil ke dalam bentuk AccountDto dan mengembalikannya sebagai respons API.
+            return Ok(new ResponseOKHandler<AccountDto>((AccountDto)result));
+        }
+        catch (ExceptionHandler ex)
+        {
+            // Mengembalikan respons dengan kode status 500 dan pesan error jika terjadi kesalahan.
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Failed to create data",
+                Error = ex.Message
+            });
+        }
     }
 
     [HttpPut]
     public IActionResult Update(AccountDto accountDto)
     {
-        // Mengambil data akun berdasarkan GUID yang diberikan.
-        var entity = _accountRepository.GetByGuid(accountDto.Guid);
-
-        // Jika data akun tidak ditemukan, mengembalikan respons NotFound.
-        if (entity is null)
+        try
         {
-            return NotFound("Id Not Found");
-        }
+            // Mengambil data akun berdasarkan GUID yang diberikan.
+            var entity = _accountRepository.GetByGuid(accountDto.Guid);
 
-        // Memeriksa apakah kata sandi berubah.
-        if (!string.IsNullOrEmpty(accountDto.Password))
+            if (entity is null)
+            {
+                return NotFound(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found"
+                });
+            }
+
+            // Memeriksa apakah kata sandi berubah.
+            if (!string.IsNullOrEmpty(accountDto.Password))
+            {
+                // Meng-hash kata sandi baru sebelum menyimpannya ke database.
+                string hashedPassword = HashingHandler.HashPassword(accountDto.Password);
+
+                // Menyalin nilai CreatedDate dari entitas yang ada ke entitas yang akan diperbarui.
+                Account toUpdate = accountDto;
+                toUpdate.CreatedDate = entity.CreatedDate;
+                // Mengganti kata sandi asli dengan yang di-hash pada objek entity.
+                entity.Password = hashedPassword;
+            }
+
+            // Memperbarui data akun.
+            var result = _accountRepository.Update(entity);
+
+            // Jika gagal memperbarui data akun, mengembalikan respons BadRequest.
+            if (!result)
+            {
+                return BadRequest(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Status = HttpStatusCode.BadRequest.ToString(),
+                    Message = "Failed to update data"
+                });
+            }
+
+            // Mengembalikan respons sukses dengan pesan.
+            return Ok(new ResponseOKHandler<string>("Data Updated"));
+        }
+        catch (ExceptionHandler ex)
         {
-            // Meng-hash kata sandi baru sebelum menyimpannya ke database.
-            string hashedPassword = HashingHandler.HashPassword(accountDto.Password);
-
-
-            // Menyalin nilai CreatedDate dari entitas yang ada ke entitas yang akan diperbarui.
-            Account toUpdate = accountDto;
-            toUpdate.CreatedDate = entity.CreatedDate;
-            // Mengganti kata sandi asli dengan yang di-hash pada objek entity.
-            entity.Password = hashedPassword;
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Failed to create data",
+                Error = ex.Message
+            });
         }
-
-        // Memperbarui data akun.
-        var result = _accountRepository.Update(entity);
-
-        // Jika gagal memperbarui data akun, mengembalikan respons BadRequest.
-        if (!result)
-        {
-            return BadRequest("Failed to update data");
-        }
-
-        // Mengembalikan respons sukses.
-        return Ok("Data Updated");
     }
 
     [HttpDelete("{guid}")]
     public IActionResult Delete(Guid guid)
     {
-        // Mengambil data akun berdasarkan GUID yang diberikan.
-        var entity = _accountRepository.GetByGuid(guid);
-
-        // Jika data akun tidak ditemukan, mengembalikan respons NotFound.
-        if (entity is null)
+        try
         {
-            return NotFound("Id Not Found");
+            var entity = _accountRepository.GetByGuid(guid);
+
+            if (entity is null)
+            {
+                return NotFound(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Data Not Found"
+                });
+            }
+
+            // Menghapus data akun dari repositori.
+            _accountRepository.Delete(entity);
+
+            return Ok(new ResponseOKHandler<string>("Data Deleted"));
         }
-
-        // Menghapus data akun.
-        var result = _accountRepository.Delete(entity);
-
-        // Jika gagal menghapus data akun, mengembalikan respons BadRequest.
-        if (!result)
+        catch (ExceptionHandler ex)
         {
-            return BadRequest("Failed to delete data");
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Failed to create data",
+                Error = ex.Message
+            });
         }
-
-        // Mengembalikan respons sukses.
-        return Ok("Data Deleted");
     }
 }

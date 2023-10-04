@@ -1,12 +1,13 @@
 ﻿using API.Models;
 using API.Utilities.Enums;
 
-/* Kelas BookingDto adalah Data Transfer Object (DTO) yang digunakan untuk 
- * mengambil data dari objek Booking dan mengembalikannya sebagai respons dari API. */
 namespace API.DTOs.Bookings;
 
+/* Kelas BookingDto adalah Data Transfer Object (DTO) yang digunakan untuk 
+ * mengambil data dari objek Booking dan mengembalikannya sebagai respons dari API. */
 public class BookingDto
 {
+    // Properti-properti berikut adalah atribut-atribut yang akan diambil dari objek Booking.
     public Guid Guid { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
@@ -15,8 +16,10 @@ public class BookingDto
     public Guid RoomGuid { get; set; }
     public Guid EmployeeGuid { get; set; }
 
+    // Operator konversi explicit yang mengubah objek Booking menjadi objek BookingDto.
     public static explicit operator BookingDto(Booking booking)
     {
+        // Membuat objek BookingDto baru dengan nilai-nilai yang diambil dari Booking.
         return new BookingDto
         {
             Guid = booking.Guid,
@@ -29,8 +32,10 @@ public class BookingDto
         };
     }
 
+    // Operator konversi implicit yang mengubah objek BookingDto menjadi objek Booking.
     public static implicit operator Booking(BookingDto bookingDto)
     {
+        // Membuat objek Booking baru dengan nilai-nilai yang diambil dari BookingDto.
         return new Booking
         {
             Guid = bookingDto.Guid,
@@ -40,7 +45,7 @@ public class BookingDto
             Remarks = bookingDto.Remarks,
             RoomGuid = bookingDto.RoomGuid,
             EmployeeGuid = bookingDto.EmployeeGuid,
-            ModifiedDate = DateTime.Now
+            ModifiedDate = DateTime.Now  // Mengatur ModifiedDate sebagai waktu saat ini.
         };
     }
 }

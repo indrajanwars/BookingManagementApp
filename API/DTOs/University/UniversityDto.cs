@@ -1,18 +1,13 @@
 ﻿using API.Models;
-
 namespace API.DTOs.Universities;
 
 /* Kelas UniversityDto adalah Data Transfer Object (DTO) yang digunakan untuk 
  * mengambil data dari objek University dan mengembalikannya sebagai respons dari API. */
 public class UniversityDto
 {
-    // Properti Guid digunakan untuk menampung GUID universitas.
+    // Properti-properti berikut adalah atribut-atribut yang akan diambil dari objek University.
     public Guid Guid { get; set; }
-
-    // Properti Code digunakan untuk menampung kode universitas.
     public string Code { get; set; }
-
-    // Properti Name digunakan untuk menampung nama universitas.
     public string Name { get; set; }
 
     /* Operator explicit di sini adalah metode khusus yang secara eksplisit mengkonversi objek University

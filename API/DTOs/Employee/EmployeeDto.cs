@@ -7,34 +7,21 @@ namespace API.DTOs.Employees;
  * mengambil data dari objek Employee dan mengembalikannya sebagai respons dari API. */
 public class EmployeeDto
 {
+    // Properti-properti berikut adalah atribut-atribut yang akan diambil dari objek Employee.
     public Guid Guid { get; set; }
     public string Nik { get; set; }
     public string FirstName { get; set; }
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
     public DateTime BirthDate { get; set; }
     public GenderLevel Gender { get; set; }
     public DateTime HiringDate { get; set; }
     public string Email { get; set; }
     public string PhoneNumber { get; set; }
 
-    public static explicit operator EmployeeDto(Employee employee)
-    {
-        return new EmployeeDto
-        {
-            Guid = employee.Guid,
-            Nik = employee.Nik,
-            FirstName = employee.FirstName,
-            LastName = employee.LastName,
-            BirthDate = employee.BirthDate,
-            Gender = employee.Gender,
-            HiringDate = employee.HiringDate,
-            Email = employee.Email,
-            PhoneNumber = employee.PhoneNumber
-        };
-    }
-
+    // Operator konversi implicit yang mengubah objek EmployeeDto menjadi objek Employee.
     public static implicit operator Employee(EmployeeDto employeeDto)
     {
+        // Membuat objek Employee baru dengan nilai-nilai yang diambil dari EmployeeDto.
         return new Employee
         {
             Guid = employeeDto.Guid,
@@ -46,7 +33,25 @@ public class EmployeeDto
             HiringDate = employeeDto.HiringDate,
             Email = employeeDto.Email,
             PhoneNumber = employeeDto.PhoneNumber,
-            ModifiedDate = DateTime.Now
+            ModifiedDate = DateTime.Now  // Mengatur ModifiedDate sebagai waktu saat ini.
+        };
+    }
+
+    // Operator konversi explicit yang mengubah objek Employee menjadi objek EmployeeDto.
+    public static explicit operator EmployeeDto(Employee employee)
+    {
+        // Membuat objek EmployeeDto baru dengan nilai-nilai yang diambil dari Employee.
+        return new EmployeeDto
+        {
+            Guid = employee.Guid,
+            Nik = employee.Nik,
+            FirstName = employee.FirstName,
+            LastName = employee.LastName,
+            BirthDate = employee.BirthDate,
+            Gender = employee.Gender,
+            HiringDate = employee.HiringDate,
+            Email = employee.Email,
+            PhoneNumber = employee.PhoneNumber
         };
     }
 }

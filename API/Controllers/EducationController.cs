@@ -1,99 +1,184 @@
-﻿using API.Contracts;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using API.Contracts;
 using API.Models;
-using Microsoft.AspNetCore.Mvc;
+using API.Utilities.Handlers;
 
 namespace API.Controllers;
 
-// Mendeklarasikan kelas EducationController adalah turunan dari ControllerBase.
+// EducationController adalah sebuah kontroler API yang berfungsi untuk mengelola data pendidikan.
 [ApiController]
 [Route("api/[controller]")]
 public class EducationController : ControllerBase
 {
     private readonly IEducationRepository _educationRepository;
 
-    // Konstruktor kelas EducationController menerima instance IEducationRepository sebagai dependensi.
     public EducationController(IEducationRepository educationRepository)
     {
         _educationRepository = educationRepository;
     }
 
-    // HTTP GET: Mengambil semua data Education dari repository.
+    // Mendapatkan semua data pendidikan.
     [HttpGet]
     public IActionResult GetAll()
     {
         var result = _educationRepository.GetAll();
+
+        // Jika tidak ada data pendidikan yang ditemukan, mengembalikan respons NotFound.
         if (!result.Any())
         {
-            // Mengembalikan respons NotFound jika tidak ada data yang ditemukan.
-            return NotFound("Data Not Found");
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Data Not Found"
+            });
         }
 
-        // Mengembalikan data dalam respons OK jika berhasil.
-        return Ok(result);
+        // Mengembalikan data dalam respons OK dengan objek ResponseOKHandler yang berisi data.
+        return Ok(new ResponseOKHandler<IEnumerable<Education>>(result));
     }
 
-    // HTTP GET: Mengambil data Education berdasarkan GUID yang diberikan.
+    // Mendapatkan data pendidikan berdasarkan GUID.
     [HttpGet("{guid}")]
     public IActionResult GetByGuid(Guid guid)
     {
         var result = _educationRepository.GetByGuid(guid);
+
+        // Jika data pendidikan tidak ditemukan, mengembalikan respons NotFound.
         if (result is null)
         {
-            // Mengembalikan respons NotFound jika GUID tidak ditemukan.
-            return NotFound("Id Not Found");
+            return NotFound(new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status404NotFound,
+                Status = HttpStatusCode.NotFound.ToString(),
+                Message = "Id Not Found"
+            });
         }
-        return Ok(result);
+
+        // Mengembalikan data dalam respons OK dengan objek ResponseOKHandler yang berisi data.
+        return Ok(new ResponseOKHandler<Education>(result));
     }
 
-    // HTTP POST: Membuat data Education baru dengan menggunakan objek Education yang diterima.
+    // Membuat data pendidikan baru.
     [HttpPost]
     public IActionResult Create(Education education)
     {
-        var result = _educationRepository.Create(education);
-        if (result is null)
+        try
         {
-            // Mengembalikan respons BadRequest jika gagal membuat data baru.
-            return BadRequest("Failed to create data");
-        }
+            // Membuat data pendidikan baru dengan menggunakan objek Education yang diterima.
+            var result = _educationRepository.Create(education);
 
-        // Mengembalikan data yang berhasil dibuat dalam respons OK.
-        return Ok(result);
+            // Jika gagal membuat data pendidikan, mengembalikan respons BadRequest.
+            if (result is null)
+            {
+                return BadRequest(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Status = HttpStatusCode.BadRequest.ToString(),
+                    Message = "Failed to create data"
+                });
+            }
+
+            // Mengembalikan data yang berhasil dibuat dalam respons OK dengan objek ResponseOKHandler.
+            return Ok(new ResponseOKHandler<Education>(result));
+        }
+        catch (ExceptionHandler ex)
+        {
+            // Mengembalikan respons dengan kode status 500 dan pesan error jika terjadi kesalahan.
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Failed to create data",
+                Error = ex.Message
+            });
+        }
     }
 
-    // HTTP PUT: Memperbarui data Education berdasarkan objek Education yang diterima.
+    // Memperbarui data pendidikan.
     [HttpPut]
     public IActionResult Update(Education education)
     {
-        var result = _educationRepository.Update(education);
-        if (!result)
+        try
         {
-            // Mengembalikan respons BadRequest jika gagal memperbarui data.
-            return BadRequest("Failed to update data");
-        }
+            // Memperbarui data pendidikan berdasarkan objek Education yang diterima.
+            var result = _educationRepository.Update(education);
 
-        // Mengembalikan respons OK dengan pesan "Data Updated" jika berhasil.
-        return Ok("Data Updated");
+            // Jika gagal memperbarui data pendidikan, mengembalikan respons BadRequest.
+            if (!result)
+            {
+                return BadRequest(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Status = HttpStatusCode.BadRequest.ToString(),
+                    Message = "Failed to update data"
+                });
+            }
+
+            // Mengembalikan respons sukses dengan pesan "Data Updated".
+            return Ok(new ResponseOKHandler<string>("Data Updated"));
+        }
+        catch (ExceptionHandler ex)
+        {
+            // Mengembalikan respons dengan kode status 500 dan pesan error jika terjadi kesalahan.
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Failed to create data",
+                Error = ex.Message
+            });
+        }
     }
 
-    // HTTP DELETE: Menghapus data Education berdasarkan GUID yang diberikan.
+    // Menghapus data pendidikan berdasarkan GUID.
     [HttpDelete("{guid}")]
     public IActionResult Delete(Guid guid)
     {
-        var entity = _educationRepository.GetByGuid(guid);
-        if (entity is null)
+        try
         {
-            // Mengembalikan respons NotFound jika GUID tidak ditemukan.
-            return NotFound("Id Not Found");
-        }
+            // Mengambil data pendidikan berdasarkan GUID yang diberikan.
+            var entity = _educationRepository.GetByGuid(guid);
 
-        var result = _educationRepository.Delete(entity);
-        if (!result)
+            // Jika data pendidikan tidak ditemukan, mengembalikan respons NotFound.
+            if (entity is null)
+            {
+                return NotFound(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Status = HttpStatusCode.NotFound.ToString(),
+                    Message = "Id Not Found"
+                });
+            }
+
+            // Menghapus data pendidikan dari repositori.
+            var result = _educationRepository.Delete(entity);
+
+            // Jika gagal menghapus data pendidikan, mengembalikan respons BadRequest.
+            if (!result)
+            {
+                return BadRequest(new ResponseErrorHandler
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Status = HttpStatusCode.BadRequest.ToString(),
+                    Message = "Failed to delete data"
+                });
+            }
+
+            // Mengembalikan respons sukses dengan pesan.
+            return Ok(new ResponseOKHandler<string>("Data Deleted"));
+        }
+        catch (ExceptionHandler ex)
         {
-            // Mengembalikan respons BadRequest jika gagal menghapus data.
-            return BadRequest("Failed to delete data");
+            // Mengembalikan respons dengan kode status 500 dan pesan error jika terjadi kesalahan.
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
+            {
+                Code = StatusCodes.Status500InternalServerError,
+                Status = HttpStatusCode.InternalServerError.ToString(),
+                Message = "Failed to create data",
+                Error = ex.Message
+            });
         }
-
-        // Mengembalikan respons OK dengan pesan "Data Deleted" jika berhasil.
-        return Ok("Data Deleted");
     }
 }

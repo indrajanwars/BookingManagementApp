@@ -6,18 +6,14 @@ namespace API.DTOs.Universities;
  * dari request API, dan membuat objek University berdasarkan data tersebut. */
 public class CreateUniversityDto
 {
-    // Properti Code digunakan untuk menampung kode universitas.
+    // Properti-properti berikut mewakili atribut-atribut yang akan diterima dari permintaan API.
     public string Code { get; set; }
-
-    // Properti Name digunakan untuk menampung nama universitas.
     public string Name { get; set; }
 
-    /* Operator implicit secara otomatis mengkonversi instance CreateUniversityDto menjadi objek University.
-     * Memungkinkan untuk membuat objek University dari data yang diterima dalam request API. */
+    // Operator konversi implicit yang mengubah objek CreateUniversityDto menjadi objek University.
     public static implicit operator University(CreateUniversityDto createUniversityDto)
     {
-
-        // Dalam metode ini membuat objek University baru dan menginisialisasinya dengan properti-properti yang diterima.
+        // Membuat objek University baru dengan nilai-nilai yang diambil dari CreateUniversityDto.
         return new University
         {
             Code = createUniversityDto.Code,

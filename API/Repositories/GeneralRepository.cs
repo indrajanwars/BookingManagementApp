@@ -1,12 +1,13 @@
 ﻿using API.Contracts;
 using API.Data;
+using API.Utilities.Handlers;
 
 namespace API.Repositories;
 
 // Deklarasi kelas menggunakan generic type TEntity. Kelas ini mengimplementasikan interface IGeneralRepository<TEntity>.
 public class GeneralRepository<TEntity> : IGeneralRepository<TEntity> where TEntity : class
 {
-    private readonly BookingManagementDbContext _context;
+    protected readonly BookingManagementDbContext _context;
 
     // Konstruktor untuk GeneralRepository, menerima instance dari BookingManagementDbContext yang akan digunakan untuk berinteraksi dengan database.
     protected GeneralRepository(BookingManagementDbContext context)
@@ -42,9 +43,9 @@ public class GeneralRepository<TEntity> : IGeneralRepository<TEntity> where TEnt
             _context.SaveChanges();
             return entity;
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            throw new ExceptionHandler(ex.InnerException?.Message ?? ex.Message);
         }
     }
 
