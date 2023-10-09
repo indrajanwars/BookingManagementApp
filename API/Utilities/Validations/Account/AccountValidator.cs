@@ -9,14 +9,14 @@ namespace API.Utilities.Validations.Accounts
         public AccountValidator()
         {
             // Validasi untuk GUID (tidak boleh kosong)
-            RuleFor(a => a.Guid)
+            RuleFor(a => a.EmployeeGuid)
                 .NotEmpty();
 
             // Validasi untuk Password (tidak boleh kosong dan minimal 6 karakter)
             RuleFor(a => a.Password)
                 .NotEmpty()
-                .MinimumLength(6)
-                .WithMessage("Password minimal 6 karakter.");
+                .MinimumLength(8)
+                .WithMessage("Password minimal 8 karakter.");
 
             // Validasi untuk OTP (tidak boleh kosong dan harus angka positif)
             RuleFor(a => a.OTP)

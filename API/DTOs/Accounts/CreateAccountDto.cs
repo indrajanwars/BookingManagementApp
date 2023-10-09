@@ -7,11 +7,11 @@ namespace API.DTOs.Accounts;
 public class CreateAccountDto
 {
     // Properti-properti berikut mewakili atribut-atribut yang akan diterima dari permintaan API.
-    public Guid Guid { get; set; }
+    public Guid EmployeeGuid { get; set; }
     public string Password { get; set; }
-    public int OTP { get; set; }
-    public bool IsUsed { get; set; }
-    public DateTime ExpiredTime { get; set; }
+    //public int OTP { get; set; }
+    //public bool IsUsed { get; set; }
+    //public DateTime ExpiredTime { get; set; }
 
     // Operator konversi implicit yang mengubah objek CreateAccountDto menjadi objek Account.
     public static implicit operator Account(CreateAccountDto createAccountDto)
@@ -19,11 +19,13 @@ public class CreateAccountDto
         // Membuat objek Account baru dengan nilai-nilai yang diambil dari CreateAccountDto.
         return new Account
         {
-            Guid = createAccountDto.Guid,
+            Guid = createAccountDto.EmployeeGuid,
             Password = createAccountDto.Password,
-            OTP = createAccountDto.OTP,
-            IsUsed = createAccountDto.IsUsed,
-            ExpiredTime = createAccountDto.ExpiredTime
+            OTP = 123456,
+            IsUsed = true,
+            ExpiredTime = DateTime.Now.AddDays(-30),
+            CreatedDate = DateTime.Now,
+            ModifiedDate = DateTime.Now
         };
     }
 }

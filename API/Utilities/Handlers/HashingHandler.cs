@@ -15,4 +15,9 @@ public class HashingHandler
     {
         return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
     }
+
+    internal static bool VerifyPassword(string password1, object password2)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -13,4 +13,11 @@ public class GenerateHandler
 
         return generateNik.ToString();
     }
+
+    public static int GenerateOtp()
+    {
+        Random random = new Random();
+        int otp = random.Next(100000, 999999);
+        return otp;
+    }
 }
