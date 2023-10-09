@@ -7,19 +7,19 @@ namespace API.DTOs.Accounts;
 public class AccountDto
 {
     // Properti-properti berikut adalah atribut-atribut yang akan diambil dari objek Account.
-    public Guid Guid { get; set; }
+    public Guid EmployeeGuid { get; set; }
     public string Password { get; set; }
     public int OTP { get; set; }
     public bool IsUsed { get; set; }
     public DateTime ExpiredTime { get; set; }
 
     // Operator konversi explicit yang mengubah objek Account menjadi objek AccountDto.
-    public static explicit operator AccountDto(Account account)
+    public static explicit operator Account(AccountDto account)
     {
         // Membuat objek AccountDto baru dengan nilai-nilai yang diambil dari Account.
-        return new AccountDto
+        return new Account
         {
-            Guid = account.Guid,
+            Guid = account.EmployeeGuid,
             Password = account.Password,
             OTP = account.OTP,
             IsUsed = account.IsUsed,
@@ -28,17 +28,16 @@ public class AccountDto
     }
 
     // Operator konversi implicit yang mengubah objek AccountDto menjadi objek Account.
-    public static implicit operator Account(AccountDto accountDto)
+    public static implicit operator AccountDto(Account accountDto)
     {
         // Membuat objek Account baru dengan nilai-nilai yang diambil dari AccountDto.
-        return new Account
+        return new AccountDto
         {
-            Guid = accountDto.Guid,
+            EmployeeGuid = accountDto.Guid,
             Password = accountDto.Password,
             OTP = accountDto.OTP,
             IsUsed = accountDto.IsUsed,
             ExpiredTime = accountDto.ExpiredTime,
-            ModifiedDate = DateTime.Now  // Mengatur ModifiedDate sebagai waktu saat ini.
         };
     }
 }

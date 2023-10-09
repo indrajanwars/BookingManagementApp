@@ -4,12 +4,14 @@ using API.Contracts;
 using API.DTOs.Universities;
 using API.Models;
 using API.Utilities.Handlers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
-// UniversityController adalah sebuah kontroler API yang berfungsi untuk mengelola data universitas.
+// Kontroler API yang berfungsi untuk mengelola data universitas.
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UniversityController : ControllerBase
 {
     private readonly IUniversityRepository _universityRepository;

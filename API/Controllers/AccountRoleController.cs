@@ -4,12 +4,14 @@ using API.Contracts;
 using API.DTOs.AccountRoles;
 using API.Models;
 using API.Utilities.Handlers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
 // AccountRoleController adalah sebuah kontroler API yang berfungsi untuk mengelola data peran akun.
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "superAdmin")]
 public class AccountRoleController : ControllerBase
 {
     private readonly IAccountRoleRepository _accountRoleRepository;

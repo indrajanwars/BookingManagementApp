@@ -4,12 +4,14 @@ using API.Contracts;
 using API.DTOs.Roles;
 using API.Models;
 using API.Utilities.Handlers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
 // RoleController adalah sebuah kontroler API yang berfungsi untuk mengelola data peran (roles).
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "superAdmin")]
 public class RoleController : ControllerBase
 {
     private readonly IRoleRepository _roleRepository;

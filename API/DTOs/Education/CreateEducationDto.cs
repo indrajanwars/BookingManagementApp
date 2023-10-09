@@ -7,6 +7,7 @@ namespace API.DTOs.Educations;
 public class CreateEducationDto
 {
     // Properti-properti berikut mewakili atribut-atribut yang akan diterima dari permintaan API.
+    public Guid Guid { get; set; }
     public string Major { get; set; }
     public string Degree { get; set; }
     public float Gpa { get; set; }
@@ -18,6 +19,7 @@ public class CreateEducationDto
         // Membuat objek Education baru dengan nilai-nilai yang diambil dari CreateEducationDto.
         return new Education
         {
+            Guid = createEducationDto.Guid,
             Major = createEducationDto.Major,
             Degree = createEducationDto.Degree,
             Gpa = createEducationDto.Gpa,
