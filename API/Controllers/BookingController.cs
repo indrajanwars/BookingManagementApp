@@ -28,36 +28,31 @@ public class BookingController : ControllerBase
 
     // Endpoint untuk mendapatkan semua detail booking
     [HttpGet("AllBookingDetails")]
-    [Authorize(Roles = "admin, superAdmin")]
+    [Authorize(Roles = "admin, superAdmin")]    // Akses hanya untuk user yang memiliki role admin atau superAdmin.
     public IActionResult GetAllBookingDetails()
     {
-        // Mengambil semua data booking dari repository
+        // Mendapatkan semua data booking, employee, dan ruangan.
         var allBookings = _bookingRepository.GetAll();
-
-        // Mengambil semua data employee (Employee) yang berelasi dengan booking dari repository
         var allEmployees = _employeeRepository.GetAll();
-
-        // Mengambil semua data room dari repository
         var allRooms = _roomRepository.GetAll();
 
-        // Menggabungkan (join) tabel booking, employee, dan room untuk mendapatkan detail booking
+        // Menggabungkan data booking dengan data employee dan ruangan untuk membuat detail booking.
         var bookingDetails = (from b in allBookings
                               join e in allEmployees on b.EmployeeGuid equals e.Guid
                               join r in allRooms on b.RoomGuid equals r.Guid
                               select new BookingDetailsDto
                               {
                                   Guid = b.Guid,
-                                  BookedNIK = e.Nik, // NIK employee yang melakukan booking
-                                  BookedBy = $"{e.FirstName} {e.LastName}", // Nama lengkap employee yang melakukan booking
-                                  RoomName = r.Name, // Nama room yang dipesan
-                                  StartDate = b.StartDate, // Tanggal mulai booking
-                                  EndDate = b.EndDate, // Tanggal akhir booking
-                                  Status = b.Status, // Status dari booking
-                                  Remarks = b.Remarks // Catatan terkait booking
+                                  BookedNIK = e.Nik,
+                                  BookedBy = $"{e.FirstName} {e.LastName}",
+                                  RoomName = r.Name,
+                                  StartDate = b.StartDate,
+                                  EndDate = b.EndDate,
+                                  Status = b.Status,
+                                  Remarks = b.Remarks
                               }).ToList();
 
-        // Jika tidak ada detail booking yang ditemukan, kembalikan respons NotFound
-        if (!bookingDetails.Any())
+        if (!bookingDetails.Any())  // Memeriksa apakah ada detail booking.
         {
             return NotFound(new ResponseErrorHandler
             {
@@ -67,7 +62,7 @@ public class BookingController : ControllerBase
             });
         }
 
-        // Mengembalikan daftar detail booking dalam bentuk respons OK
+        // Mengembalikan daftar detail booking dalam respons OK.
         return Ok(new ResponseOKHandler<IEnumerable<BookingDetailsDto>>(bookingDetails));
     }
 
@@ -76,17 +71,12 @@ public class BookingController : ControllerBase
     [Authorize(Roles = "admin, superAdmin")]
     public IActionResult GetBookingByGuid(Guid guid)
     {
-        // Mengambil data booking berdasarkan GUID
-        var booking = _bookingRepository.GetByGuid(guid);
-        // Mengambil semua data employee
-        var allEmployees = _employeeRepository.GetAll();
-        // Mengambil semua data room
-        var allRooms = _roomRepository.GetAll();
+        var booking = _bookingRepository.GetByGuid(guid);   // Mendapatkan data booking berdasarkan GUID yang diberikan.
+        var allEmployees = _employeeRepository.GetAll();    // Mendapatkan semua data employee.
+        var allRooms = _roomRepository.GetAll();            // Mendapatkan semua data ruangan
 
-        // Jika booking tidak ditemukan
-        if (booking == null)
+        if (booking == null)    // Memeriksa apakah booking dengan GUID yang diberikan ditemukan.
         {
-            // Mengembalikan respons NotFound dengan pesan kesalahan
             return NotFound(new ResponseErrorHandler
             {
                 Code = StatusCodes.Status404NotFound,
@@ -94,8 +84,7 @@ public class BookingController : ControllerBase
                 Message = "Booking dengan GUID yang diberikan tidak ditemukan"
             });
         }
-
-        // Membuat objek detail booking dengan join antara booking, employee, dan room
+        // Menggabungkan data booking dengan data employee dan ruangan untuk membuat detail booking.
         var bookingDetail = (from b in new[] { booking }
                              join e in allEmployees on b.EmployeeGuid equals e.Guid
                              join r in allRooms on b.RoomGuid equals r.Guid
@@ -111,8 +100,7 @@ public class BookingController : ControllerBase
                                  Remarks = b.Remarks
                              }).FirstOrDefault();
 
-        // Jika detail booking tidak ditemukan
-        if (bookingDetail == null)
+        if (bookingDetail == null)  // Memeriksa apakah detail booking ditemukan.
         {
             return NotFound(new ResponseErrorHandler
             {
@@ -122,61 +110,49 @@ public class BookingController : ControllerBase
             });
         }
 
-        // Mengembalikan detail booking dalam bentuk respons OK
+        // Mengembalikan detail booking dalam respons OK.
         return Ok(new ResponseOKHandler<BookingDetailsDto>(bookingDetail));
     }
 
-    // Endpoint untuk mengetahui durasi pemesanan room
+    // Endpoint untuk menghitung durasi booking per ruangan, memperhitungkan hari libur.
     [HttpGet("BookingDuration")]
     public IActionResult GetBookingDuration()
     {
         try
         {
-            // Mengambil semua data booking dan room
-            var bookings = _bookingRepository.GetAll();
-            var rooms = _roomRepository.GetAll();
+            var bookings = _bookingRepository.GetAll();     // Mengambil semua data pemesanan (booking) dari repositori.
+            var rooms = _roomRepository.GetAll();           // Mengambil semua data room dari repositori.
+            var nonWorkingDays = new List<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday };      // Daftar hari yang bukan hari kerja (akhir pekan).
+            var roomBookingDuration = new List<RoomBookingDurationDto>();       // Daftar untuk menyimpan informasi durasi pemesanan per ruangan.
 
-            // Mendefinisikan hari yang tidak dihitung (Sabtu dan Minggu)
-            var nonWorkingDays = new List<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday };
-
-            // List untuk menyimpan hasil perhitungan durasi pemesanan
-            var roomBookingDuration = new List<RoomBookingDurationDto>();
-
-            // Mengiterasi setiap room
             foreach (var room in rooms)
             {
-                // Mengambil semua booking untuk room tertentu
-                var roomBookings = bookings.Where(b => b.RoomGuid == room.Guid);
+                var roomBookings = bookings.Where(b => b.RoomGuid == room.Guid);    // Mengambil semua pemesanan yang terkait dengan ruangan ini.
 
-                // Jika ada booking untuk room tersebut
                 if (roomBookings.Any())
                 {
-                    // Menghitung durasi booking total
-                    var totalBookingDurationInHours = 0;
+                    var totalBookingDurationInHours = 0;    // Variabel untuk menyimpan total durasi pemesanan dalam jam.
 
-                    // Mengiterasi setiap booking
-                    foreach (var booking in roomBookings)
+                    foreach (var booking in roomBookings)   // Hasil dari loop adalah total durasi pemesanan dalam jam, memperhitungkan hari libur.
                     {
+                        // Menentukan tanggal awal dan akhir pemesanan.
                         var startDate = booking.StartDate;
                         var endDate = booking.EndDate;
 
-                        while (startDate <= endDate)
+                        while (startDate <= endDate)    // Menghitung durasi pemesanan dalam jam, memperhitungkan hari libur.
                         {
-                            // Menambahkan durasi jika bukan hari Sabtu atau Minggu
-                            if (!nonWorkingDays.Contains(startDate.DayOfWeek))
+                            if (!nonWorkingDays.Contains(startDate.DayOfWeek))      // Memeriksa apakah hari saat ini bukan hari libur.
                             {
-                                totalBookingDurationInHours += 1;
+                                totalBookingDurationInHours += 1;   // Jika bukan hari libur, tambahkan 1 jam ke total durasi pemesanan.
                             }
-                            startDate = startDate.AddHours(1);
+                            startDate = startDate.AddHours(1);      // Pindah ke jam berikutnya.
                         }
                     }
-
-                    // Mengkonversi durasi dari jam ke hari
+                    // Menghitung durasi pemesanan dalam hari dan jam.
                     var totalBookingDurationInDays = totalBookingDurationInHours / 24;
                     var remainingHours = totalBookingDurationInHours % 24;
 
-                    // Menambahkan hasil perhitungan ke list
-                    roomBookingDuration.Add(new RoomBookingDurationDto
+                    roomBookingDuration.Add(new RoomBookingDurationDto      // Menambahkan informasi durasi pemesanan ruangan ke daftar.
                     {
                         RoomGuid = room.Guid,
                         RoomName = room.Name,
@@ -184,19 +160,17 @@ public class BookingController : ControllerBase
                     });
                 }
             }
-
-            // Mengembalikan daftar hasil perhitungan
+            // Mengembalikan daftar durasi pemesanan ruangan dalam respons sukses.
             return Ok(new ResponseOKHandler<IEnumerable<RoomBookingDurationDto>>(roomBookingDuration));
 
         }
-        // Menangkap pengecualian jika ada kesalahan saat eksekusi kode
-        catch (ExceptionHandler ex)
+        catch (ExceptionHandler ex)     // Menangani kesalahan jika terjadi, dan mengembalikan respons 500 Internal Server Error.
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
             {
                 Code = StatusCodes.Status500InternalServerError,
                 Status = HttpStatusCode.InternalServerError.ToString(),
-                Message = "Failed to calculate booking lengths",
+                Message = "Failed to calculate booking durations",
                 Error = ex.Message
             });
         }

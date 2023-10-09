@@ -25,21 +25,17 @@ public class RoomController : ControllerBase
         _employeeRepository = employeeRepository;
     }
 
-    // Endpoint untuk mendapatkan ruangan yang digunakan pada hari ini
+    // Endpoint untuk mendapatkan ruangan yang digunakan pada hari ini.
     [HttpGet("RoomOrderedToday")]
     public IActionResult GetRoomUsedToday()
     {
-        // Mengambil semua data booking
+        // Mendapatkan semua data booking, room, dan employee.
         var allBooking = _bookingRepository.GetAll();
-        // Mengambil semua data ruangan
         var allRoom = _roomRepository.GetAll();
-        // Mengambil semua employee data
         var allEmployees = _employeeRepository.GetAll();
+        DateTime today = DateTime.Now.Date;     // Mengambil tanggal hari ini.
 
-        // Mendapatkan tanggal hari ini
-        DateTime today = DateTime.Now.Date;
-
-        // Cek jika tidak ada data booking atau ruangan
+        // Memeriksa apakah ada data booking atau room.
         if (!(allBooking.Any() && allRoom.Any()))
         {
             return NotFound(new ResponseErrorHandler
@@ -50,6 +46,7 @@ public class RoomController : ControllerBase
             });
         }
 
+        // Mengambil daftar room yang digunakan hari ini.
         var roomsUsedToday = (from b in allBooking
                               join r in allRoom on b.RoomGuid equals r.Guid
                               join e in allEmployees on b.EmployeeGuid equals e.Guid
@@ -63,6 +60,7 @@ public class RoomController : ControllerBase
                                   BookedBy = $"{e.FirstName} {e.LastName}"
                               }).ToList();
 
+        // Memeriksa apakah ada room yang digunakan hari ini.
         if (!roomsUsedToday.Any())
         {
             return NotFound(new ResponseErrorHandler
@@ -73,34 +71,27 @@ public class RoomController : ControllerBase
             });
         }
 
-        // Mengembalikan daftar ruangan yang digunakan hari ini dalam bentuk respons OK
+        // Mengembalikan daftar ruangan yang digunakan hari ini dalam respons OK.
         return Ok(new ResponseOKHandler<IEnumerable<RoomUsedDto>>(roomsUsedToday));
     }
 
-    // Endpoint untuk mendapatkan daftar ruangan yang tersedia
+    // Endpoint untuk mengambil daftar ruangan yang tersedia pada hari ini.
     [HttpGet("AvailableRooms")]
     public IActionResult GetAvailableRooms()
     {
         try
         {
-            // Mengambil semua data ruangan
-            var allRooms = _roomRepository.GetAll();
+            var allRooms = _roomRepository.GetAll();        // Mengambil semua data room dari repositori.
+            var allBookings = _bookingRepository.GetAll();  // Mengambil semua data booking dari repositori.
+            DateTime today = DateTime.Now.Date;             // Mendapatkan tanggal hari ini.
 
-            // Mengambil semua data booking
-            var allBookings = _bookingRepository.GetAll();
-
-            // Mendapatkan tanggal hari ini
-            DateTime today = DateTime.Now.Date;
-
-            // Menentukan ruangan mana saja yang sudah dipesan hari ini
-            var usedRoomGuids = allBookings
+            var usedRoomGuids = allBookings     // Mengidentifikasi GUID room yang sedang digunakan hari ini.
                 .Where(b => b.StartDate.Date <= today && today <= b.EndDate.Date)
                 .Select(b => b.RoomGuid)
                 .Distinct()
                 .ToList();
 
-            // Mengambil daftar ruangan yang belum dipesan
-            var availableRooms = allRooms
+            var availableRooms = allRooms       // Memfilter room yang tersedia hari ini berdasarkan GUID yang tidak digunakan.
                 .Where(r => !usedRoomGuids.Contains(r.Guid))
                 .Select(r => new RoomDto
                 {
@@ -111,8 +102,7 @@ public class RoomController : ControllerBase
                 })
                 .ToList();
 
-            // Jika tidak ada ruangan yang tersedia
-            if (!availableRooms.Any())
+            if (!availableRooms.Any())      // Jika tidak ada room yang tersedia, kembalikan respons 404 Not Found.
             {
                 return NotFound(new ResponseErrorHandler
                 {
@@ -121,12 +111,9 @@ public class RoomController : ControllerBase
                     Message = "Tidak ada ruangan yang tersedia hari ini"
                 });
             }
-
-            // Mengembalikan daftar ruangan yang tersedia
-            return Ok(new ResponseOKHandler<IEnumerable<RoomDto>>(availableRooms));
+            return Ok(new ResponseOKHandler<IEnumerable<RoomDto>>(availableRooms));     // Kembalikan daftar room yang tersedia dalam respons sukses.
         }
-        // Penanganan jika terjadi kesalahan
-        catch (ExceptionHandler ex)
+        catch (ExceptionHandler ex)     // Menangani kesalahan jika terjadi, dan mengembalikan respons 500 Internal Server Error.
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseErrorHandler
             {
